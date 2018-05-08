@@ -204,8 +204,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 502975981}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -5, z: -0.16669768}
-  m_LocalScale: {x: 20, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: -4.96, z: -0.16669768}
+  m_LocalScale: {x: 20, y: 1.9794621, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -321,9 +321,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visualPoint: {fileID: 1166764387014254, guid: 401ee689bace722438de7a95061c2768,
     type: 2}
-  verticeCount: 4
-  PolygonStiffness: 50
-  damping: 1.75
+  verticeCount: 3
+  PolygonStiffness: 200
+  damping: 10
 --- !u!4 &1529338565
 Transform:
   m_ObjectHideFlags: 0

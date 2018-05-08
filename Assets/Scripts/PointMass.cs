@@ -12,6 +12,7 @@ public class PointMass: MonoBehaviour {
     public Vector3 totalForce;
     public Vector3 position;
     public Vector3 impulse;
+
 	void Start ()
     {
         velocity = acceleration = totalForce = impulse= Vector3.zero;
@@ -22,6 +23,7 @@ public class PointMass: MonoBehaviour {
         CalcForces();
         ApplyForce();
 	}
+
 
     void ApplyForce()
     {
@@ -34,9 +36,10 @@ public class PointMass: MonoBehaviour {
 
     void CalcForces()
     {
-       Gravity();
+       
        Springs();
-       Drag();
+        Gravity();
+        Drag();
     }
 
     private void Gravity()

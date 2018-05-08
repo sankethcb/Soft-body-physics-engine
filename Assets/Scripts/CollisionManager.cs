@@ -24,6 +24,9 @@ public class CollisionManager : MonoBehaviour {
         PolygonCollisions();
         FloorCollisions();
         collisionPoints = Collisions.colPoints;
+        DestroyPoly();
+
+
 	}
 
     void PolygonCollisions()
@@ -46,6 +49,19 @@ public class CollisionManager : MonoBehaviour {
         for (int i = 0; i < polygons.Count; i++)
         {
             Collisions.FloorCheck(polygons[i]);
+        }
+    }
+
+    void DestroyPoly()
+    {
+        for(int i=0;i<polygons.Count;i++)
+        {
+            if (polygons[i].transform.position.x > 10 || polygons[i].transform.position.x < -10)
+            {
+                Destroy(polygons[i].gameObject, 1);
+                polygons.Remove(polygons[i]);
+            }
+               
         }
     }
 }

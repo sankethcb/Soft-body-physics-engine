@@ -8,9 +8,10 @@ public class Polygon : MonoBehaviour {
     public PointMass center;
     public List<GameObject> visualPoints = new List<GameObject>();
     public List<Spring> springs = new List<Spring>();
-     public List<Vector3> normals=new List<Vector3>();
+    public List<Vector3> normals=new List<Vector3>();
+    public List<Polygon> collisionList = new List<Polygon>();
     // Use this for initialization
-    
+
 
     void Start ()
     {
@@ -19,6 +20,7 @@ public class Polygon : MonoBehaviour {
 
     private void Update()
     {
+        collisionList.Clear();
         for (int i = 0; i < springs.Count; i++)
         {
             springs[i].isCalled = false;

@@ -11,7 +11,7 @@ public class CreatePoly : MonoBehaviour {
     public float PolygonStiffness = 200f;
     float stiffness;
     public float damping =10;
-
+    Vector3 spawn=Vector3.zero;
     Polygon currentPoly;    
 
 
@@ -19,31 +19,33 @@ public class CreatePoly : MonoBehaviour {
     void Start () {
 
         stiffness = verticeCount * PolygonStiffness;
-        StartCoroutine(LateStart());
         
 
     }
 	
-    IEnumerator LateStart()
-    {
-        yield return new WaitForSeconds(0.3f);
-        PolyCreation();
-        yield return new WaitForSeconds(1f);
-        //verticeCount = 6;
-        //PolyCreation();
-    }
+
 
 	// Update is called once per frame
-	void Update () {
-		
-	}
+	void Update ()
+    {
+		if(Input.GetKeyDown(KeyCode.Space))
+        {
+            Vector3 newPosition = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10.0f);
+            spawn = Camera.main.ScreenToWorldPoint(newPosition);
+            PolyCreation();
+
+        }
+    }
 
     //handles ploygon creation
     public void PolyCreation()
     {
         GameObject currentPolyObject = new GameObject();
+        currentPolyObject.transform.position = spawn;
         currentPoly = currentPolyObject.AddComponent<Polygon>() as Polygon;
         AddPointMasses(currentPolyObject);
+
+        
 
         CollisionManager.collisionManager.polygons.Add(currentPoly);
 
@@ -65,7 +67,7 @@ public class CreatePoly : MonoBehaviour {
             //Position for each vertex
             x = Mathf.Cos(Mathf.Deg2Rad * angle);
             y = Mathf.Sin(Mathf.Deg2Rad * angle);
-            position = new Vector3(x, y);
+            position = spawn + new Vector3(x, y);
 
             //Creating point mass at each vertex
              pm = polyObject.AddComponent<PointMass>() as PointMass;
@@ -100,7 +102,8 @@ public class CreatePoly : MonoBehaviour {
 
         float temp1 = stiffness;
         float temp2 = damping;
-       // stiffness += 5000f/verticeCount;
+        //if(stiffness<1600)
+           // stiffness = PolygonStiffness * verticeCount * 1.5f;
        // damping = 10f;
 
         foreach (PointMass vertex in currentPoly.vertices)
