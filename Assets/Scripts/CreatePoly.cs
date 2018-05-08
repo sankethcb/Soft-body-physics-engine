@@ -8,7 +8,8 @@ public class CreatePoly : MonoBehaviour {
 
 
     public int verticeCount = 4;
-    public  float stiffness=200;
+    public float PolygonStiffness = 200f;
+    float stiffness;
     public float damping =10;
 
     Polygon currentPoly;    
@@ -17,6 +18,7 @@ public class CreatePoly : MonoBehaviour {
     // Use this for initialization
     void Start () {
 
+        stiffness = verticeCount * PolygonStiffness;
         StartCoroutine(LateStart());
         
 
@@ -24,8 +26,11 @@ public class CreatePoly : MonoBehaviour {
 	
     IEnumerator LateStart()
     {
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.3f);
         PolyCreation();
+        yield return new WaitForSeconds(1f);
+        //verticeCount = 6;
+        //PolyCreation();
     }
 
 	// Update is called once per frame
@@ -93,11 +98,17 @@ public class CreatePoly : MonoBehaviour {
         currentPoly.visualPoints.Add(vp);
         vp.transform.parent = polyObject.transform;
 
-        foreach(PointMass vertex in currentPoly.vertices)
+        float temp1 = stiffness;
+        float temp2 = damping;
+       // stiffness += 5000f/verticeCount;
+       // damping = 10f;
+
+        foreach (PointMass vertex in currentPoly.vertices)
         {
             ConnectSpring(vertex, pm);
         }
-
+        stiffness = temp1;
+        damping = temp2;
 
 
     }

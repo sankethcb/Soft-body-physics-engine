@@ -8,6 +8,7 @@ public class CollisionManager : MonoBehaviour {
     public static CollisionManager collisionManager;
     public BoxCollider2D Floor;  
     public List<Polygon> polygons;
+    public List<PointMass> collisionPoints;
     
         
     // Use this for initialization
@@ -20,17 +21,22 @@ public class CollisionManager : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate ()
     {
+        PolygonCollisions();
         FloorCollisions();
+        collisionPoints = Collisions.colPoints;
 	}
 
     void PolygonCollisions()
     {
-        for(int i=0;i<polygons.Count;i++)
+        if (polygons.Count > 0)
         {
-            for (int j = 0; j < polygons.Count; i++)
+            for (int i = 0; i < polygons.Count; i++)
             {
-                if (polygons[i] != polygons[j])
-                    Collisions.PolygonCheck();
+                for (int j = 0; j < polygons.Count; j++)
+                {
+                    if (polygons[i] != polygons[j])
+                        Collisions.PolygonCheck(polygons[i], polygons[j]);
+                }
             }
         }
     }

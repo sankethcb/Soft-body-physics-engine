@@ -321,9 +321,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visualPoint: {fileID: 1166764387014254, guid: 401ee689bace722438de7a95061c2768,
     type: 2}
-  verticeCount: 3
-  stiffness: 500
-  damping: 10
+  verticeCount: 4
+  PolygonStiffness: 50
+  damping: 1.75
 --- !u!4 &1529338565
 Transform:
   m_ObjectHideFlags: 0
@@ -350,3 +350,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Floor: {fileID: 502975983}
   polygons: []
+  collisionPoints: []

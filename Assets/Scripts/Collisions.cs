@@ -7,14 +7,14 @@ public static class Collisions
 
     static Vector2 MTV;
 
-    static List<Vector2> verticesA;
-    static List<Vector2> normalsA;
+    static List<PointMass> verticesA;
+    static List<Vector3> normalsA;
 
-    static List<Vector2> verticesB;
-    static List<Vector2> normalsB;
+    static List<PointMass> verticesB;
+    static List<Vector3> normalsB;
     static float magnitude;
     public static Bounds Floor;
-
+    public static List<PointMass> colPoints;
 
 
     //Polygon-floor collisions
@@ -25,14 +25,14 @@ public static class Collisions
         {
             if (AABB(pm))
             {
-                
+
                 FloorDecouple(pm);
                 ResolveFloorCollision(pm);
 
             }
         }
 
-        if(AABB(poly.center))
+        if (AABB(poly.center))
         {
             FloorDecouple(poly.center);
             ResolveFloorCollision(poly.center);
@@ -56,12 +56,12 @@ public static class Collisions
     {
         Vector3 moveDir = -pm.velocity.normalized;
 
-        float distance=0.0f;
-        
+        float distance = 0.0f;
+
         //Top left quadrant
-        if(pm.position.x<Floor.center.x && pm.position.y>=Floor.center.y)
+        if (pm.position.x < Floor.center.x && pm.position.y >= Floor.center.y)
         {
-            if(Mathf.Abs(Floor.min.x-pm.position.x)< Mathf.Abs(Floor.max.y-pm.position.y))
+            if (Mathf.Abs(Floor.min.x - pm.position.x) < Mathf.Abs(Floor.max.y - pm.position.y))
             {
                 distance = Mathf.Abs(Floor.min.x - pm.position.x);
             }
@@ -73,7 +73,7 @@ public static class Collisions
         //Top right quadrant
         if (pm.position.x >= Floor.center.x && pm.position.y >= Floor.center.y)
         {
-            if(Mathf.Abs(Floor.max.x-pm.position.x)< Mathf.Abs(Floor.max.y-pm.position.y))
+            if (Mathf.Abs(Floor.max.x - pm.position.x) < Mathf.Abs(Floor.max.y - pm.position.y))
             {
                 distance = Mathf.Abs(Floor.max.x - pm.position.x);
             }
@@ -85,7 +85,7 @@ public static class Collisions
         //Bottom right quadrant
         if (pm.position.x >= Floor.center.x && pm.position.y < Floor.center.y)
         {
-            if(Mathf.Abs(Floor.max.x-pm.position.x)< Mathf.Abs(Floor.min.y-pm.position.y))
+            if (Mathf.Abs(Floor.max.x - pm.position.x) < Mathf.Abs(Floor.min.y - pm.position.y))
             {
                 distance = Mathf.Abs(Floor.max.x - pm.position.x);
             }
@@ -97,7 +97,7 @@ public static class Collisions
         //Bottom left quadrant
         if (pm.position.x < Floor.center.x && pm.position.y < Floor.center.y)
         {
-            if (Mathf.Abs(Floor.min.x-pm.position.x) < Mathf.Abs(Floor.min.y-pm.position.y))
+            if (Mathf.Abs(Floor.min.x - pm.position.x) < Mathf.Abs(Floor.min.y - pm.position.y))
             {
                 distance = Mathf.Abs(Floor.min.x - pm.position.x);
             }
@@ -136,46 +136,30 @@ public static class Collisions
         impulse.z = 0;
 
         pm.impulse += impulse;
-        
+
     }
 
 
 
     //Polygon-Polygon Collisions
-    //
-    public static void PolygonCheck()
+
+    public static void PolygonCheck(Polygon polyA, Polygon polyB)
     {
 
-        /*
-        for (int i = 0; i < A.CollisionList.Count; i++)
-        {
-            if (A.CollisionList[i].GetInstanceID()==B.GetInstanceID())
-                return;     
-        }
-        A.CollisionList.Add(B);
 
-        for (int i = 0; i < B.CollisionList.Count; i++)
+        if (TestIntersection(polyA, polyB))
         {
-            if (B.CollisionList[i].GetInstanceID() == A.GetInstanceID())
-                return;
-        }
-        B.CollisionList.Add(A);
 
-        if (TestIntersection(colliderA, colliderB))
-        {
-            DecoupleShapes(colliderA, colliderB);
-            Vector3 colPoint = CollisionPoint(colliderA, colliderB);
-            
-            if (NeedsResolution(colliderA, colliderB, colPoint))
-            {
-               ResolveCollision(colliderA, colliderB, colPoint);
-            }
-           
+            //DecoupleShapes(polyA, polyB);
+            colPoints = CollisionPoint(polyA, polyB);
+            ResolveCollision(polyA, polyB);
+
         }
 
-        */
+
+
     }
-    /*
+
     //Testing for collision using SAT
     private static bool TestIntersection(Polygon A, Polygon B)
     {
@@ -184,9 +168,9 @@ public static class Collisions
         magnitude = 0;
 
         verticesA = A.vertices;
-        normalsA = A.GetNormals();
-        verticesB = B.GetGVertices();
-        normalsB = B.GetNormals();
+        normalsA = A.Normals;
+        verticesB = B.vertices;
+        normalsB = B.Normals;
 
 
         for (int i = 0; i < normalsA.Count; i++)
@@ -194,11 +178,11 @@ public static class Collisions
 
             float min1, max1;
 
-            min1 = max1 = Vector2.Dot(normalsA[i], verticesA[0]);
+            min1 = max1 = Vector2.Dot(normalsA[i], verticesA[0].position);
 
             for (int j = 1; j < verticesA.Count; j++)
             {
-                float current = Vector2.Dot(normalsA[i], verticesA[j]);
+                float current = Vector2.Dot(normalsA[i], verticesA[j].position);
 
                 if (current < min1)
                     min1 = current;
@@ -207,11 +191,11 @@ public static class Collisions
             }
             float min2, max2;
 
-            min2 = max2 = Vector2.Dot(normalsA[i], verticesB[0]);
+            min2 = max2 = Vector2.Dot(normalsA[i], verticesB[0].position);
             for (int j = 1; j < verticesB.Count; j++)
             {
 
-                float current = Vector2.Dot(normalsA[i], verticesB[j]);
+                float current = Vector2.Dot(normalsA[i], verticesB[j].position);
                 if (current < min2)
                     min2 = current;
                 else if (current > max2)
@@ -242,11 +226,11 @@ public static class Collisions
         {
             float min1, max1;
 
-            min1 = max1 = Vector2.Dot(normalsB[i], verticesA[0]);
+            min1 = max1 = Vector3.Dot(normalsB[i], verticesA[0].position);
 
             for (int j = 1; j < verticesA.Count; j++)
             {
-                float current = Vector2.Dot(normalsB[i], verticesA[j]);
+                float current = Vector3.Dot(normalsB[i], verticesA[j].position);
                 if (current < min1)
                     min1 = current;
                 else if (current > max1)
@@ -254,11 +238,11 @@ public static class Collisions
             }
             float min2, max2;
 
-            min2 = max2 = Vector2.Dot(normalsB[i], verticesB[0]);
+            min2 = max2 = Vector2.Dot(normalsB[i], verticesB[0].position);
             for (int j = 1; j < verticesB.Count; j++)
             {
 
-                float current = Vector2.Dot(normalsB[i], verticesB[j]);
+                float current = Vector2.Dot(normalsB[i], verticesB[j].position);
                 if (current < min2)
                     min2 = current;
                 else if (current > max2)
@@ -285,7 +269,7 @@ public static class Collisions
                 return false;
         }
 
-        Vector2 temp = A.Position - B.Position;
+        Vector2 temp = A.center.position - B.center.position;
         if (Vector2.Dot(temp, MTV) < 0.0f)
             MTV *= -1.0f;
 
@@ -293,43 +277,87 @@ public static class Collisions
         return true;
     }
 
-    static void DecoupleShapes(ICollider A, ICollider B)
+    /*
+    static void DecoupleShapes(Polygon A, Polygon B)
     {
-        float i1 = Mathf.Abs(Vector2.Dot(A.Velocity, MTV));
-        float i2 = Mathf.Abs(Vector2.Dot(B.Velocity, MTV));
+        float i1, i2, sum, mag1, mag2;
+        /*
+        float i1 = Mathf.Abs(Vector2.Dot(A.center.velocity, MTV));
+        float i2 = Mathf.Abs(Vector2.Dot(B.center.velocity, MTV));
 
-        float sum = i1 + i2 ;
+        float sum = i1 + i2;
 
         float mag1 = i1 / sum * magnitude;
         float mag2 = i2 / sum * magnitude;
+        
 
 
+        foreach (PointMass vertex in A.vertices)
+        {
+            i1 = Mathf.Abs(Vector2.Dot(vertex.velocity, MTV));
+            i2 = Mathf.Abs(Vector2.Dot(B.center.velocity, MTV));
 
-        A.Position = A.Position + new Vector3(MTV.x * mag1, MTV.y * mag1, 0.0f);
+            sum = i1 + i2;
 
-        B.Position = B.Position - new Vector3(MTV.x * mag2, MTV.y * mag2, 0.0f);
+            mag1 = i1 / sum * magnitude;
+            mag2 = i2 / sum * magnitude;
 
+            vertex.position += new Vector3(MTV.x * mag1, MTV.y * mag1, 0.0f);
+        }
+
+        i1 = Mathf.Abs(Vector2.Dot(A.center.velocity, MTV));
+        i2 = Mathf.Abs(Vector2.Dot(B.center.velocity, MTV));
+
+        sum = i1 + i2;
+
+        mag1 = i1 / sum * magnitude;
+        mag2 = i2 / sum * magnitude;
+
+        
+        A.center.position += new Vector3(MTV.x * mag1, MTV.y * mag1, 0.0f);
+
+        foreach (PointMass vertex in B.vertices)
+        {
+            i1 = Mathf.Abs(Vector2.Dot(A.center.velocity, MTV));
+            i2 = Mathf.Abs(Vector2.Dot(vertex.velocity, MTV));
+
+            sum = i1 + i2;
+
+            mag1 = i1 / sum * magnitude;
+            mag2 = i2 / sum * magnitude;
+            vertex.position += new Vector3(MTV.x * mag2, MTV.y * mag2, 0.0f);
+        }
+
+        i1 = Mathf.Abs(Vector2.Dot(A.center.velocity, MTV));
+        i2 = Mathf.Abs(Vector2.Dot(B.center.velocity, MTV));
+
+        sum = i1 + i2;
+
+        mag1 = i1 / sum * magnitude;
+        mag2 = i2 / sum * magnitude;
+        B.center.position += new Vector3(MTV.x * mag1, MTV.y * mag1, 0.0f);
 
     }
+*/
 
-    static Vector2 CollisionPoint(ICollider A, ICollider B)
+    static List<PointMass> CollisionPoint(Polygon A, Polygon B)
     {
         float tolerance = 0.01f;
         float currentMin;
         float dot;
-        Vector2 current;
-        List<Vector2> closestPointsA = new List<Vector2>();
+        PointMass current;
+        List<PointMass> closestPointsA = new List<PointMass>();
 
-        current = A.GetGVertices()[0];
-        currentMin = Vector2.Dot(current, MTV);
+        current = A.vertices[0];
+        currentMin = Vector3.Dot(current.position, MTV);
         closestPointsA.Add(current);
 
 
-        for (int i = 1; i < A.GetGVertices().Count; i++)
+        for (int i = 1; i < A.vertices.Count; i++)
         {
-            current = A.GetGVertices()[i];
+            current = A.vertices[i];
 
-            dot = Vector2.Dot(current, MTV);
+            dot = Vector3.Dot(current.position, MTV);
 
             if (Mathf.Abs(dot - currentMin) < Mathf.Epsilon + tolerance)
                 closestPointsA.Add(current);
@@ -342,20 +370,20 @@ public static class Collisions
         }
 
         if (closestPointsA.Count == 1)
-            return closestPointsA[0];
+            return closestPointsA;
 
-        List<Vector2> closestPointsB = new List<Vector2>();
+        List<PointMass> closestPointsB = new List<PointMass>();
         float currentMax;
 
-        current = B.GetGVertices()[0];
-        currentMax = Vector2.Dot(current, MTV);
+        current = B.vertices[0];
+        currentMax = Vector3.Dot(current.position, MTV);
         closestPointsB.Add(current);
 
-        for (int i = 1; i < B.GetGVertices().Count; i++)
+        for (int i = 1; i < B.vertices.Count; i++)
         {
-            current = B.GetGVertices()[i];
+            current = B.vertices[i];
 
-            dot = Vector2.Dot(current, MTV);
+            dot = Vector3.Dot(current.position, MTV);
 
             if (Mathf.Abs(dot - currentMin) < Mathf.Epsilon + tolerance)
                 closestPointsB.Add(current);
@@ -368,19 +396,19 @@ public static class Collisions
         }
 
         if (closestPointsB.Count == 1)
-            return closestPointsB[0];
+            return closestPointsB;
 
-        Vector2 edge = new Vector2(MTV.y, -MTV.x);
+        Vector2 edge = new Vector3(MTV.y, -MTV.x);
 
         closestPointsA.AddRange(closestPointsB);
 
-        currentMin = currentMax = Vector2.Dot(closestPointsA[0], edge);
+        currentMin = currentMax = Vector3.Dot(closestPointsA[0].position, edge);
 
         int minIndex = 0, maxIndex = 0;
-
-        for (int i = 0; i < A.GetGVertices().Count; i++)
+        for (int i = 0; i < closestPointsA.Count; i++)
         {
-            dot = Vector2.Dot(closestPointsA[i], edge);
+
+            dot = Vector3.Dot(closestPointsA[i].position, edge);
             if (dot < currentMin)
             {
                 currentMin = dot;
@@ -398,69 +426,64 @@ public static class Collisions
             --maxIndex;
         closestPointsA.RemoveAt(maxIndex);
 
-        Vector2 closestPoint = (closestPointsA[0] + closestPointsA[1]) * 0.5f;
-        return closestPoint;
+        //PointMass closestPoint = (closestPointsA[0] + closestPointsA[1]) * 0.5f;
+        return closestPointsA;
+
+
+
 
 
     }
 
-    static bool NeedsResolution(ICollider A, ICollider B, Vector2 cPoint)
+    /*
+    static bool NeedsResolution(Polygon A, Polygon B)
     {
-        Vector3 radiusA = new Vector3(cPoint.x, cPoint.y, 0.0f) - A.Position;
-        Vector3 radiusB = new Vector3(cPoint.x, cPoint.y, 0.0f) - B.Position;
 
-        Vector3 velA = new Vector3(A.Velocity.x, A.Velocity.y, 0.0f) + Vector3.Cross(A.AngularVelocity, radiusA);
-        Vector3 velB = new Vector3(B.Velocity.x, B.Velocity.y, 0.0f) + Vector3.Cross(B.AngularVelocity, radiusB);
-
-        Vector2 relativeV = velB - velA;
+        Vector2 relativeV = A.center.velocity - B.center.velocity;
 
         if (Vector2.Dot(MTV, relativeV) > 0.0f)
             return true;
         else
             return false;
     }
-
-    static void ResolveCollision(ICollider A, ICollider B, Vector2 cPoint)
+    */
+    static void ResolveCollision(Polygon A, Polygon B)
     {
-        Vector3 radiusA = new Vector3(cPoint.x, cPoint.y, 0.0f) - A.Position;
-        Vector3 radiusB = new Vector3(cPoint.x, cPoint.y, 0.0f) - B.Position;
 
-        Vector3 velA = new Vector3(A.Velocity.x, A.Velocity.y, 0.0f) + Vector3.Cross(A.AngularVelocity, radiusA);
-        Vector3 velB = new Vector3(B.Velocity.x, B.Velocity.y, 0.0f) + Vector3.Cross(B.AngularVelocity, radiusB);
 
-        Vector2 relativeV = velA - velB;
+        Vector2 relativeV = A.center.velocity - B.center.velocity;
 
         //coefficient of restitution
         float e = 1.0f;
         float prelativeV = Vector2.Dot(relativeV, MTV);
-        //Perpendicular radii and velocity
-        float prelativeFinalV = -e * prelativeV;
-        Vector3 pradiusA = Vector3.Cross(Vector3.forward, radiusA);
-        Vector3 pradiusB = Vector3.Cross(Vector3.forward, radiusB);
-
-
 
         //"Magic" momentum equation
-        
-        float j = ((-(1+e)* prelativeV) /   //Numerator
-            ((1 / A.Mass + 1 / B.Mass)+              //Summ of inverse masses
-           (Mathf.Pow(Vector2.Dot(pradiusA, MTV), 2.0f) / A.MomentofInertia) +
-            Mathf.Pow(Vector2.Dot(pradiusB, MTV), 2.0f) / B.MomentofInertia));
-            
 
-       
+        float j = (-(1 + e) * prelativeV) /   //Numerator
+            (1 / A.Mass + 1 / B.Mass);    //Summ of inverse masses
 
-       Vector2 impulse = j * MTV;
 
-    
-        A.Impulse += impulse;
-       A.AngularImpulse += Vector3.Cross(radiusA, impulse).z;
 
-        impulse *= -1.0f;
 
-        B.Impulse += impulse;
-        B.AngularImpulse += Vector3.Cross(radiusA, impulse).z;
+
+        Vector3 impulse = j * MTV;
+        impulse.z = 0f;
+
+        if (colPoints == null)
+            return;
+        foreach (PointMass pm in colPoints)
+        {
+            if (A.vertices.Contains(pm))
+            {
+                pm.impulse += impulse;
+            }
+
+            else if (B.vertices.Contains(pm))
+            {
+                pm.impulse -= impulse;
+            }
+        }
 
     }
-    */
+
 }

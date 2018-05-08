@@ -52,7 +52,7 @@ public class Spring
             pmB.totalForce -= force;
 
 
-            //isCalled = true;
+            isCalled = true;
         }
         
 

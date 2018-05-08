@@ -18,7 +18,7 @@ public class DrawPoly
         }
         lineMaterial.SetPass(0);
         GL.PushMatrix();
-        GL.MultMatrix(localtoworld);
+        //GL.MultMatrix(localtoworld);
         GL.Begin(GL.LINES);
 
         float pointCount = poly.vertices.Count;
